@@ -9,15 +9,15 @@ namespace Aisde2
     class Floyd
     {
         int INF = 1000;
-        public Floyd(graph graph, uint NumberNodes)
+        public Floyd(graph graph)
         {
-            numberNodes_ = NumberNodes;
-            graph_ = new double[NumberNodes, NumberNodes];
-            preNodes_ = new int[NumberNodes];
+            numberNodes_ = graph.numberNodes();
+            graph_ = new double[numberNodes_, numberNodes_];
+            preNodes_ = new int[numberNodes_, numberNodes_];
       
-            for (int i = 0; i < NumberNodes; ++i)
+            for (int i = 0; i < numberNodes_; ++i)
             {
-                for (int j = 0; j < NumberNodes; ++j)
+                for (int j = 0; j < numberNodes_; ++j)
                 {
                     graph_[i, j] = INF;
                 }
@@ -27,18 +27,18 @@ namespace Aisde2
                     graph_[graph.list[i][j].id - 1, i] = graph.list[i][j].distance;
                 }
                 graph_[i, i] = 0;
+                for (int n = 0; n < numberNodes_; ++n)
+                {
+                    preNodes_[i,n] = i;
+                }
             }
         }
-        public void getDistance(int u){
+        public double[,] getDistance(int u){
             double newDist;
             int i;
             if (u != 0)
             {
                 i = u - 1;
-                for (int n = 0; n < preNodes_.Length; ++n)
-                {
-                    preNodes_[n] = u -1;
-                }
             }
             else
                 i = 0;
@@ -58,8 +58,8 @@ namespace Aisde2
                        newDist = graph_[i, k] + graph_[k, j];
                        if (newDist < graph_[i,j])
                        {
-                           preNodes_[j] = k;
-                           preNodes_[k] = i;
+                           preNodes_[i,j] = k;
+                           preNodes_[i,k] = i;
                            graph_[i, j] = newDist;
                            graph_[j, i] = newDist;
                        }
@@ -68,8 +68,21 @@ namespace Aisde2
                 if (u != 0)
                     break;
             }
+            return graph_;
         }
-        int[] preNodes_;
+        public List<int> getPath(int u,int v)
+        {
+            List<int> path = new List<int>();
+            path.Add(v);
+            int i = v - 1; 
+            do
+            {
+                path.Add(preNodes_[u-1,i]+1);
+                i = preNodes_[u-1,i];
+            } while (i != u -1);
+            return path;
+        }
+        int[,] preNodes_;
         double[,] graph_;
         uint numberNodes_;
     }
